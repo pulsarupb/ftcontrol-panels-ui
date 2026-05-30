@@ -34,6 +34,12 @@ body {
   --d3: calc(var(--multiplier) * 3s);
 }
 
+body.no-select,
+body.no-select * {
+  user-select: none !important;
+  -webkit-user-select: none !important;
+}
+
 *,
 *::after,
 *::before {

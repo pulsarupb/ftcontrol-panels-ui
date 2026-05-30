@@ -164,9 +164,11 @@
     text-decoration: none;
   }
   .presets-overlay {
-    min-width: 220px;
+    min-width: 320px;
+    max-width: min(520px, calc(100vw - 32px));
     max-height: 420px;
     overflow-y: auto;
+    overflow-x: hidden;
     display: flex;
     flex-direction: column;
     padding: calc(var(--padding) / 2);
@@ -177,6 +179,14 @@
     display: flex;
     align-items: center;
     gap: calc(var(--padding) / 2);
+    min-width: 0;
+  }
+  .preset > :global(button:first-child) {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   .menu,
   .new-menu,
@@ -205,7 +215,7 @@
     margin-bottom: 0;
     gap: var(--padding);
     max-width: 100%;
-    overflow-x: auto;
+    overflow-x: hidden;
     overflow-y: hidden;
     max-height: 64px;
     min-height: 64px;

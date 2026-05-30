@@ -21,6 +21,7 @@
   let yOffset = $state(0)
 
   function startMove(e: MouseEvent) {
+    e.preventDefault()
     if (!manager.enableInteractions) return
     if (isPossible) return
     console.log("Started move of", movingIndex)
@@ -28,6 +29,7 @@
     manager.tabName = widget.widgets[movingIndex].widgetID || "Empty"
 
     window.addEventListener("mousemove", onMove)
+    document.body.classList.add("no-select")
 
     const tab = document.querySelector(
       `[data-widget="${widget.id}"][data-index="${movingIndex}"]`
@@ -105,6 +107,7 @@
     if (el == undefined) {
       window.removeEventListener("mousemove", onMove)
       window.removeEventListener("mouseup", stopMove)
+      document.body.classList.remove("no-select")
       return
     }
 
@@ -156,6 +159,7 @@
 
     window.removeEventListener("mousemove", onMove)
     window.removeEventListener("mouseup", stopMove)
+    document.body.classList.remove("no-select")
 
     manager.save()
   }
@@ -230,6 +234,7 @@
     align-items: center;
     gap: 0.5rem;
     overflow-y: auto;
+    user-select: none;
   }
 
   .tab {
@@ -240,6 +245,9 @@
     border-radius: 0.25rem;
     text-wrap: nowrap;
     opacity: 0.5;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
   }
   .tab.selected {
     opacity: 1;

@@ -41,9 +41,10 @@
 
             <Button
               transparent={true}
+              style="width: 36px;height: 36px;padding: 0;display: grid;place-items: center;"
               onclick={() => manager.removeNavlet(index)}
             >
-              <Delete />
+              <span class="delete-icon"><Delete /></span>
             </Button>
           {:else}
             <NavletsChoose
@@ -79,6 +80,12 @@
     display: grid;
     gap: calc(var(--padding) / 2);
     padding: calc(var(--padding) / 2);
-    grid-template-columns: auto 32px;
+    grid-template-columns: minmax(120px, auto) 36px;
+  }
+  .delete-icon {
+    width: 18px;
+    height: 22px;
+    display: grid;
+    place-items: center;
   }
 </style>
