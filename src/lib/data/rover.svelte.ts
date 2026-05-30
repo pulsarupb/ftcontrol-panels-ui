@@ -1,7 +1,6 @@
 export class RoverData {
   startedAt = Date.now()
   tick = $state(0)
-  gamepadIndex = $state(0)
   gamepadConnected = $state(false)
   gamepadId = $state("No gamepad connected")
   gamepadAxes = $state([0, 0, 0, 0])
@@ -42,14 +41,9 @@ export class RoverData {
     window.requestAnimationFrame(frame)
   }
 
-  setGamepadIndex(index: number) {
-    this.gamepadIndex = index
-    this.pollGamepad()
-  }
-
   private pollGamepad() {
     if (typeof navigator === "undefined" || !navigator.getGamepads) return
-    const gamepad = navigator.getGamepads()[this.gamepadIndex]
+    const gamepad = Array.from(navigator.getGamepads()).find(Boolean)
     if (!gamepad) {
       this.gamepadConnected = false
       this.gamepadId = "No gamepad connected"

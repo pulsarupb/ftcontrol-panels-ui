@@ -1,5 +1,4 @@
 <script lang="ts">
-  import Overlay from "$lib/ui/Overlay.svelte"
   import { rover } from "$lib/data/rover.svelte"
 
   type Stick = {
@@ -85,18 +84,6 @@
     }
   })
 
-  const gamepadsOptions = $derived.by(() => {
-    if (typeof navigator === "undefined" || !navigator.getGamepads) return [0, 1, 2, 3]
-    const connected = Array.from(navigator.getGamepads())
-      .map((pad, index) => (pad ? index : -1))
-      .filter((index) => index >= 0)
-    return connected.length ? connected : [0, 1, 2, 3]
-  })
-
-  function formatIndex(index: number): string {
-    return `Gamepad ${index + 1}`
-  }
-
   function boolValue(value: boolean) {
     return value ? 1 : 0
   }
@@ -109,54 +96,9 @@
     return `--offsetX:${stick.x};--offsetY:${stick.y};--value:${stick.value ? 1 : Math.max(Math.abs(stick.x), Math.abs(stick.y))};`
   }
 
-  const activeTags = $derived.by(() => {
-    const tags = []
-    if (rover.gamepadConnected) tags.push("Physical")
-    if (gamepad.l1) tags.push("L1")
-    if (gamepad.l2 > 0) tags.push("L2")
-    if (gamepad.r1) tags.push("R1")
-    if (gamepad.r2 > 0) tags.push("R2")
-    if (gamepad.dpad_left) tags.push("Left")
-    if (gamepad.dpad_right) tags.push("Right")
-    if (gamepad.dpad_up) tags.push("Up")
-    if (gamepad.dpad_down) tags.push("Down")
-    if (gamepad.circle) tags.push("Circle")
-    if (gamepad.cross) tags.push("Cross")
-    if (gamepad.triangle) tags.push("Triangle")
-    if (gamepad.square) tags.push("Square")
-    if (gamepad.share) tags.push("Share")
-    if (gamepad.options) tags.push("Options")
-    if (gamepad.ps) tags.push("PS")
-    if (gamepad.touchpad) tags.push("Touchpad")
-    if (gamepad.leftStick.value || Math.abs(gamepad.leftStick.x) > 0.1 || Math.abs(gamepad.leftStick.y) > 0.1) tags.push("L Stick")
-    if (gamepad.rightStick.value || Math.abs(gamepad.rightStick.x) > 0.1 || Math.abs(gamepad.rightStick.y) > 0.1) tags.push("R Stick")
-    return tags
-  })
 </script>
 
 <section class="gamepad">
-  <section class="top-overlay">
-    <Overlay>
-      {#snippet trigger()}
-        <button class="item">{formatIndex(rover.gamepadIndex)}</button>
-      {/snippet}
-      {#snippet overlay({ close }: { close: () => void })}
-        <div class="menu">
-          {#each gamepadsOptions as option}
-            <button
-              class="item"
-              onclick={() => {
-                rover.setGamepadIndex(option)
-                close()
-              }}>{formatIndex(option)}</button
-            >
-          {/each}
-        </div>
-      {/snippet}
-    </Overlay>
-    <p>{rover.gamepadConnected ? rover.gamepadId : "Press a button on a connected gamepad"}</p>
-  </section>
-
   <div class="drawing reversed">
     <img src="/gamepad-front.png" alt="Gamepad front" draggable="false" />
     <span class="button" aria-label="L1" style="--top:35%;--left:30.5%;--value:{boolValue(gamepad.l1)}"></span>
@@ -188,11 +130,6 @@
     <span class="stick" style="--top:45%;--left:60%;{stickStyle(gamepad.rightStick)}"></span>
   </div>
 
-  <section class="overlay">
-    {#each activeTags as tag}
-      <div>{tag}</div>
-    {/each}
-  </section>
 </section>
 
 <style>
@@ -241,54 +178,7 @@
   }
   .stick {
     width: 6.5%;
-    top: calc(var(--top) + var(--offsetY) * 12%);
-    left: calc(var(--left) + var(--offsetX) * 12%);
-  }
-  .top-overlay {
-    position: absolute;
-    left: var(--padding);
-    top: var(--padding);
-    z-index: 2;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    max-width: calc(100% - 2 * var(--padding));
-  }
-  .top-overlay p {
-    margin: 0;
-    opacity: 0.7;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .menu {
-    display: grid;
-    gap: 0.35rem;
-    padding: 0.5rem;
-  }
-  .item {
-    all: unset;
-    cursor: pointer;
-    padding: 0.25em 0.5em;
-    border: 1px solid currentColor;
-    border-radius: 0.25rem;
-    text-wrap: nowrap;
-    background: var(--bgDark);
-  }
-  .overlay {
-    position: absolute;
-    left: var(--padding);
-    right: var(--padding);
-    bottom: var(--padding);
-    display: flex;
-    flex-wrap: wrap;
-    gap: calc(var(--padding) / 2);
-  }
-  .overlay div {
-    outline: 1px solid currentColor;
-    background: rgba(11, 13, 13, 0.72);
-    backdrop-filter: blur(8px);
-    padding: 0.35em 0.6em;
-    border-radius: 0.35rem;
+    top: calc(var(--top) + var(--offsetY) * 3%);
+    left: calc(var(--left) + var(--offsetX) * 3%);
   }
 </style>

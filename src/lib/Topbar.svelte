@@ -120,35 +120,39 @@
             close()
           }}
         />
-        <Overlay
-          onStateChange={(isOpen) => {
-            if (isOpen) jsonPreset = ""
-          }}
-        >
-          {#snippet trigger()}
-            <Button style="width: 100%;">Import</Button>
-          {/snippet}
-          {#snippet overlay({ close }: { close: () => void })}
-            <div class="new-menu">
-              <TextInput bind:value={jsonPreset} placeholder="JSON Preset" />
-              <Button
-                style="width: 100%;"
-                onclick={() => {
-                  manager.addTemplate(JSON.parse(jsonPreset))
-                  close()
-                }}>Create</Button
-              >
-            </div>
-          {/snippet}
-        </Overlay>
-        <Button
-          onclick={() => {
-            manager.newPreset()
-            close()
-          }}
-        >
-          <Add />
-        </Button>
+        <div class="preset-actions">
+          <Overlay
+            triggerStyle="width: 100%;min-width: 0;"
+            onStateChange={(isOpen) => {
+              if (isOpen) jsonPreset = ""
+            }}
+          >
+            {#snippet trigger()}
+              <Button style="width: 100%;box-sizing: border-box;">Import</Button>
+            {/snippet}
+            {#snippet overlay({ close }: { close: () => void })}
+              <div class="new-menu">
+                <TextInput bind:value={jsonPreset} placeholder="JSON Preset" />
+                <Button
+                  style="width: 100%;box-sizing: border-box;"
+                  onclick={() => {
+                    manager.addTemplate(JSON.parse(jsonPreset))
+                    close()
+                  }}>Create</Button
+                >
+              </div>
+            {/snippet}
+          </Overlay>
+          <Button
+            style="width: 42px;align-self: stretch;padding: 0;display: grid;place-items: center;"
+            onclick={() => {
+              manager.newPreset()
+              close()
+            }}
+          >
+            <Add />
+          </Button>
+        </div>
       </div>
     {/snippet}
   </Overlay>
@@ -175,10 +179,19 @@
     gap: calc(var(--padding) / 2);
   }
   .preset,
-  .menu {
+  .menu,
+  .preset-actions {
     display: flex;
     align-items: center;
     gap: calc(var(--padding) / 2);
+    min-width: 0;
+  }
+  .preset-actions {
+    width: 100%;
+    align-items: stretch;
+  }
+  .preset-actions > :global(.overlay-root) {
+    flex: 1 1 auto;
     min-width: 0;
   }
   .preset > :global(button:first-child) {
@@ -199,6 +212,17 @@
     flex-direction: column;
     align-items: center;
     gap: calc(var(--padding) / 2);
+  }
+  .new-menu {
+    width: min(360px, calc(100vw - 32px));
+    overflow-x: hidden;
+    align-items: stretch;
+    box-sizing: border-box;
+  }
+  .new-menu :global(input) {
+    width: 100%;
+    box-sizing: border-box;
+    min-width: 0;
   }
   .bell-menu {
     min-width: 300px;

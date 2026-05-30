@@ -34,6 +34,17 @@ export const templates: Template[] = [
       { x: 9, y: 6, w: 7, h: 6, widgets: [{ widgetID: "camera" }] },
     ],
   },
+  {
+    name: "Driving Focus",
+    navlets: [{ navletID: "status" }, { navletID: "signal" }],
+    widgets: [
+      { x: 0, y: 0, w: 8, h: 6, widgets: [{ widgetID: "gamepad" }] },
+      { x: 8, y: 0, w: 8, h: 6, widgets: [{ widgetID: "camera" }] },
+      { x: 0, y: 6, w: 5, h: 6, widgets: [{ widgetID: "power" }] },
+      { x: 5, y: 6, w: 6, h: 6, widgets: [{ widgetID: "telemetry" }] },
+      { x: 11, y: 6, w: 5, h: 6, widgets: [{ widgetID: "graph" }] },
+    ],
+  },
 ]
 
 export function getComponent(id: string, type?: "widget" | "navlet") {

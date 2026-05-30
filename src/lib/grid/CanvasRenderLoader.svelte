@@ -1,18 +1,17 @@
 <script lang="ts">
-  import { onMount, setContext, tick, type Snippet } from "svelte"
+  import { onMount, setContext, tick } from "svelte"
   import html2canvas from "html2canvas"
   import Layout from "./Layout.svelte"
-  import { Manager } from "./widgets.svelte"
-  import type { Template } from "$lib/types"
-  import { global } from "$lib"
-
-  import Topbar from "$lib/Topbar.svelte"
+import { Manager } from "./widgets.svelte"
+import type { Template } from "$lib/types"
+import { global } from "$lib"
+import Topbar from "$lib/Topbar.svelte"
 
   let { t }: { t: Template } = $props()
 
-  const cacheKey = $derived(t.name)
+  const cacheKey = $derived(`${t.name}:${JSON.stringify(t)}`)
 
-  let m = $derived(new Manager(t))
+  let m = $state(new Manager({ name: "Preview", widgets: [], navlets: [] }))
   let targetElement: HTMLDivElement
   let imageDataUrl: string = $state("")
 
@@ -38,6 +37,8 @@
   }
 
   onMount(async () => {
+    m = new Manager(t)
+    m.loadPreview(t)
     await waitForStableRender(6)
     await renderAsImage()
   })
@@ -45,20 +46,29 @@
 
 <div
   bind:this={targetElement}
-  style="width: 1400px; height: 600px; position: absolute; top: -9999px; left: -9999px;"
+  class="capture-target"
 >
-  <section>
+  <section class="preview-shell">
     <Topbar />
-
-    <Layout bind:manager={m} enableInteractions={false} />
+    <Layout bind:manager={m} enableInteractions={false} preview={true} />
   </section>
 </div>
 
 <style>
-  section {
+  .preview-shell {
     display: flex;
     flex-direction: column;
     height: 100%;
     width: 100%;
+    background: var(--bgDark);
+  }
+  .capture-target {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 1600px;
+    height: 900px;
+    z-index: -1000;
+    pointer-events: none;
   }
 </style>

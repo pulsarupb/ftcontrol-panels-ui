@@ -6,6 +6,8 @@
   import NotificationsUi from "$lib/NotificationsUI.svelte"
   import { manager } from "$lib/grid/widgets.svelte"
   import { rover } from "$lib/data/rover.svelte"
+  import { global } from "$lib"
+  import CanvasRender from "$lib/grid/CanvasRender.svelte"
 
   setContext("manager", manager.manager)
 
@@ -21,6 +23,12 @@
   <Topbar />
 
   {@render children?.()}
+
+  <div class="preview-cache" aria-hidden="true">
+    {#each global.allTemplates as t}
+      <CanvasRender {t} show={false} />
+    {/each}
+  </div>
 </section>
 
 <style>
@@ -30,5 +38,9 @@
     height: 100vh;
     display: flex;
     flex-direction: column;
+  }
+  .preview-cache {
+    display: contents;
+    pointer-events: none;
   }
 </style>

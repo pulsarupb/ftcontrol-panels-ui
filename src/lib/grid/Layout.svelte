@@ -11,9 +11,11 @@
   let {
     manager = $bindable(),
     enableInteractions = false,
+    preview = false,
   }: {
     manager: Manager
     enableInteractions?: boolean
+    preview?: boolean
   } = $props()
 
   setContext("manager", manager)
@@ -67,6 +69,9 @@
   onMount(() => {
     if (enableInteractions) {
       manager.loadInteractive()
+    } else if (manager.widgets.length === 0 && manager.presets.data.length > 0) {
+      manager.widgets = [...manager.presets.data[manager.presets.selected].widgets]
+      manager.navlets = [...manager.presets.data[manager.presets.selected].navlets]
     }
     manager.updateGridSize(section)
     if (!manager.enableInteractions) return
@@ -80,7 +85,7 @@
   let section: HTMLElement
 </script>
 
-<div class="wrapper">
+<div class="wrapper" class:preview>
   <section
     bind:this={section}
     onmousemove={onMouseMove}
@@ -143,6 +148,11 @@
     overflow-x: auto;
     height: 100%;
   }
+  .wrapper.preview {
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+  }
   section {
     --spacing: 0.25rem;
     position: relative;
@@ -152,5 +162,11 @@
     margin: var(--spacing);
     min-width: 1200px;
     height: calc(100% - 2 * var(--spacing));
+  }
+  .wrapper.preview section {
+    margin: 0;
+    min-width: 0;
+    width: 100%;
+    height: 100%;
   }
 </style>

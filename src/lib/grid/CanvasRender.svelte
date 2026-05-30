@@ -9,7 +9,7 @@
     show = true,
   }: { t: Template; show?: boolean } = $props()
 
-  const cacheKey = $derived(t.name)
+  const cacheKey = $derived(`${t.name}:${JSON.stringify(t)}`)
 
   let imageDataUrl: string | undefined = $derived(
     global.templatePreviews[cacheKey]
@@ -31,5 +31,17 @@
   img {
     width: 100%;
     height: auto;
+    border-radius: 0.5rem;
+    background: var(--bgDark);
+  }
+  .preview-loading {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    display: grid;
+    place-items: center;
+    border-radius: 0.5rem;
+    background: var(--bgMedium);
+    color: var(--text);
+    opacity: 0.7;
   }
 </style>

@@ -8,9 +8,9 @@
   let { set }: { set: (t: Template) => void } = $props()
 </script>
 
-<Overlay triggerStyle="flex-grow: 1;">
+<Overlay triggerStyle="width: 100%;min-width: 0;">
   {#snippet trigger()}
-    <Button style="width: 100%;">Templates</Button>
+    <Button style="width: 100%;box-sizing: border-box;">Templates</Button>
   {/snippet}
   {#snippet overlay({ close }: { close: () => void })}
     <div class="possibilities">
@@ -41,7 +41,7 @@
     margin-bottom: var(--padding);
   }
   .possibilities {
-    width: 750px;
+    width: min(750px, calc(100vw - 32px));
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, auto));
     gap: 1rem;
