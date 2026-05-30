@@ -32,14 +32,7 @@
     await Promise.all(
       images.map(async (image) => {
         if (image.complete && image.naturalWidth > 0) return
-        if ("decode" in image) {
-          await image.decode().catch(() => {})
-          return
-        }
-        await new Promise<void>((resolve) => {
-          image.addEventListener("load", () => resolve(), { once: true })
-          image.addEventListener("error", () => resolve(), { once: true })
-        })
+        await image.decode().catch(() => {})
       })
     )
   }
