@@ -2,14 +2,18 @@
   import { onMount, setContext, tick } from "svelte"
   import html2canvas from "html2canvas"
   import Layout from "./Layout.svelte"
-import { Manager } from "./widgets.svelte"
-import type { Template } from "$lib/types"
-import { global } from "$lib"
-import Topbar from "$lib/Topbar.svelte"
+  import { Manager } from "./widgets.svelte"
+  import type { Template } from "$lib/types"
+  import { global } from "$lib"
+  import Topbar from "$lib/Topbar.svelte"
 
   let { t }: { t: Template } = $props()
 
   const cacheKey = $derived(`${t.name}:${JSON.stringify(t)}`)
+
+  const CAPTURE_WIDTH = 1600
+  const CAPTURE_HEIGHT = 900
+  const TOPBAR_HEIGHT = 72
 
   let m = $state(new Manager({ name: "Preview", widgets: [], navlets: [] }))
   let targetElement: HTMLDivElement
@@ -17,11 +21,41 @@ import Topbar from "$lib/Topbar.svelte"
 
   setContext("manager", () => m)
 
+  function setPreviewGridSize() {
+    m.WIDTH = CAPTURE_WIDTH / m.MAX_GRID_WIDTH
+    m.HEIGHT = (CAPTURE_HEIGHT - TOPBAR_HEIGHT) / m.MAX_GRID_HEIGHT
+  }
+
+  async function waitForImages() {
+    const images = [...targetElement.querySelectorAll("img")]
+
+    await Promise.all(
+      images.map(async (image) => {
+        if (image.complete && image.naturalWidth > 0) return
+        if ("decode" in image) {
+          await image.decode().catch(() => {})
+          return
+        }
+        await new Promise<void>((resolve) => {
+          image.addEventListener("load", () => resolve(), { once: true })
+          image.addEventListener("error", () => resolve(), { once: true })
+        })
+      })
+    )
+  }
+
   async function renderAsImage() {
     if (!targetElement) return
 
+    const rect = targetElement.getBoundingClientRect()
+    if (rect.width <= 0 || rect.height <= 0) return
+
     const renderedCanvas = await html2canvas(targetElement, {
       backgroundColor: null,
+      width: CAPTURE_WIDTH,
+      height: CAPTURE_HEIGHT,
+      windowWidth: CAPTURE_WIDTH,
+      windowHeight: CAPTURE_HEIGHT,
     })
 
     imageDataUrl = renderedCanvas.toDataURL("image/png")
@@ -39,7 +73,11 @@ import Topbar from "$lib/Topbar.svelte"
   onMount(async () => {
     m = new Manager(t)
     m.loadPreview(t)
-    await waitForStableRender(6)
+    setPreviewGridSize()
+    await waitForStableRender(2)
+    setPreviewGridSize()
+    await waitForImages()
+    await new Promise((resolve) => requestAnimationFrame(resolve))
     await renderAsImage()
   })
 </script>
@@ -64,11 +102,12 @@ import Topbar from "$lib/Topbar.svelte"
   }
   .capture-target {
     position: fixed;
-    left: 0;
+    left: -10000px;
     top: 0;
     width: 1600px;
     height: 900px;
-    z-index: -1000;
+    z-index: 0;
     pointer-events: none;
+    overflow: hidden;
   }
 </style>
