@@ -1,0 +1,213 @@
+<script lang="ts">
+  import Panels from "$lib/Panels.svelte"
+  import Button from "$lib/ui/Button.svelte"
+  import Overlay from "$lib/ui/Overlay.svelte"
+  import TextInput from "$lib/ui/TextInput.svelte"
+  import { global } from "$lib"
+  import Navlets from "./navlets/Navlets.svelte"
+
+  import Options from "./icons/Options.svelte"
+  import { getContext } from "svelte"
+  import type { Manager } from "./grid/widgets.svelte"
+  import TemplatesChoose from "./grid/TemplatesChoose.svelte"
+  import Delete from "./icons/Delete.svelte"
+  import Add from "./icons/Add.svelte"
+  import Copy from "./icons/Copy.svelte"
+  import Presets from "./icons/Presets.svelte"
+  import Bell from "./icons/Bell.svelte"
+  import AllNotifications from "./AllNotifications.svelte"
+
+  const contextManager = getContext("manager") as Manager | (() => Manager)
+  let manager = $state(
+    typeof contextManager === "function" ? contextManager() : contextManager
+  )
+  let jsonPreset = $state("")
+</script>
+
+<nav>
+  <a href="/" aria-label="Dashboard home">
+    <Panels />
+  </a>
+
+  <p>ERC Rover</p>
+
+  <Navlets bind:manager />
+
+  <Overlay triggerStyle="display: flex;justify-content: center;align-items: center;">
+    {#snippet trigger()}
+      <Bell />
+    {/snippet}
+    {#snippet overlay()}
+      <div class="bell-menu">
+        <h1>Notifications</h1>
+        {#if global.notifications.length > 0}
+          <AllNotifications />
+        {:else}
+          <p>No notifications</p>
+        {/if}
+      </div>
+    {/snippet}
+  </Overlay>
+
+  <Overlay triggerStyle="display: flex;justify-content: center;align-items: center;">
+    {#snippet trigger()}
+      <Presets />
+    {/snippet}
+    {#snippet overlay({ close }: { close: () => void })}
+      <div class="presets-overlay">
+        <h1>Presets</h1>
+        {#each manager.presets.data as preset, index}
+          <div class="preset">
+            <Button
+              selected={manager.presets.selected === index}
+              onclick={() => {
+                manager.change(index)
+              }}
+            >
+              {preset.name}
+            </Button>
+            <Overlay>
+              {#snippet trigger()}
+                <Options />
+              {/snippet}
+              {#snippet overlay({ close }: { close: () => void })}
+                <div class="menu">
+                  <TextInput
+                    bind:value={manager.presets.data[index].name}
+                    oninput={() => {
+                      manager.save()
+                    }}
+                  />
+                  <Button
+                    transparent={true}
+                    disabled={manager.presets.data.length === 1}
+                    onclick={() => {
+                      manager.deletePreset(index)
+                      close()
+                    }}
+                  >
+                    <Delete />
+                  </Button>
+                  <Button
+                    transparent={true}
+                    onclick={() => {
+                      manager.save()
+                      const temp = manager.unprocessTemplate(manager.presets.data[index])
+                      close()
+                      global.notificationsManager.addAction(JSON.stringify(temp), [
+                        {
+                          text: "Copy",
+                          task: () => {
+                            navigator.clipboard.writeText(JSON.stringify(temp)).then(() => {
+                              global.notificationsManager.add("Text copied to clipboard")
+                            })
+                          },
+                        },
+                        { text: "Close", task: () => {} },
+                      ])
+                    }}
+                  >
+                    <Copy />
+                  </Button>
+                </div>
+              {/snippet}
+            </Overlay>
+          </div>
+        {/each}
+        <TemplatesChoose
+          set={(t) => {
+            manager.addTemplate(t)
+            close()
+          }}
+        />
+        <Overlay
+          onStateChange={(isOpen) => {
+            if (isOpen) jsonPreset = ""
+          }}
+        >
+          {#snippet trigger()}
+            <Button style="width: 100%;">Import</Button>
+          {/snippet}
+          {#snippet overlay({ close }: { close: () => void })}
+            <div class="new-menu">
+              <TextInput bind:value={jsonPreset} placeholder="JSON Preset" />
+              <Button
+                style="width: 100%;"
+                onclick={() => {
+                  manager.addTemplate(JSON.parse(jsonPreset))
+                  close()
+                }}>Create</Button
+              >
+            </div>
+          {/snippet}
+        </Overlay>
+        <Button
+          onclick={() => {
+            manager.newPreset()
+            close()
+          }}
+        >
+          <Add />
+        </Button>
+      </div>
+    {/snippet}
+  </Overlay>
+</nav>
+
+<style>
+  h1 {
+    margin: 0.5rem;
+    font-size: 1.5rem;
+  }
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .presets-overlay {
+    min-width: 220px;
+    max-height: 420px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    padding: calc(var(--padding) / 2);
+    gap: calc(var(--padding) / 2);
+  }
+  .preset,
+  .menu {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--padding) / 2);
+  }
+  .menu,
+  .new-menu,
+  .bell-menu {
+    padding: calc(var(--padding) / 2);
+  }
+  .new-menu,
+  .bell-menu {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: calc(var(--padding) / 2);
+  }
+  .bell-menu {
+    min-width: 300px;
+    max-width: 420px;
+  }
+  nav {
+    background-color: var(--bgMedium);
+    padding: 0 var(--padding);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 1rem;
+    margin: 0.5rem;
+    margin-bottom: 0;
+    gap: var(--padding);
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    max-height: 64px;
+    min-height: 64px;
+  }
+</style>
